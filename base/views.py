@@ -94,18 +94,21 @@ def home(request):
 
 def room(request, pk):
     room = Room.objects.get(id=pk)
+    print(room, "Loren+++++++++++++++++++++++++++++++")
     room_messages = room.message_set.all()
     participants = room.participants.all()
     
-    
     if request.method == 'POST':
-        message = Message.objects.create(
-            user = request.user,
-            room = room,
-            body = request.POST.get('body')
-        )
-        room.participants.add(request.user)
-        return redirect('room', pk=room.id)
+        if request.user.is_authenticated:
+            message = Message.objects.create(
+                user = request.user,
+                room = room,
+                body = request.POST.get('body')
+            )
+            room.participants.add(request.user)
+            return redirect('room', pk=room.id)
+        else:
+            return redirect('login')  # Redirect to login page if not authenticated
     
     context = {
         'room': room,
